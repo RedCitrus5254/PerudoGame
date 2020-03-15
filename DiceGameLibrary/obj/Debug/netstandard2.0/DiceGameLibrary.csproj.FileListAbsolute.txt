@@ -1,0 +1,8 @@
+C:\Users\Dmitrii\source\repos\DiceGame\DiceGameLibrary\bin\Debug\netstandard2.0\DiceGameLibrary.deps.json
+C:\Users\Dmitrii\source\repos\DiceGame\DiceGameLibrary\bin\Debug\netstandard2.0\DiceGameLibrary.dll
+C:\Users\Dmitrii\source\repos\DiceGame\DiceGameLibrary\bin\Debug\netstandard2.0\DiceGameLibrary.pdb
+C:\Users\Dmitrii\source\repos\DiceGame\DiceGameLibrary\obj\Debug\netstandard2.0\DiceGameLibrary.csprojAssemblyReference.cache
+C:\Users\Dmitrii\source\repos\DiceGame\DiceGameLibrary\obj\Debug\netstandard2.0\DiceGameLibrary.AssemblyInfoInputs.cache
+C:\Users\Dmitrii\source\repos\DiceGame\DiceGameLibrary\obj\Debug\netstandard2.0\DiceGameLibrary.AssemblyInfo.cs
+C:\Users\Dmitrii\source\repos\DiceGame\DiceGameLibrary\obj\Debug\netstandard2.0\DiceGameLibrary.dll
+C:\Users\Dmitrii\source\repos\DiceGame\DiceGameLibrary\obj\Debug\netstandard2.0\DiceGameLibrary.pdb
