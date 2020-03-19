@@ -80,7 +80,7 @@ namespace Server
             {
                 foreach(Dice dice in player.DiceList)
                 {
-                    if (dice.Num == value)
+                    if (dice.Num == value||dice.Num == 1)
                     {
                         num++;
                     }

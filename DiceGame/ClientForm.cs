@@ -12,9 +12,9 @@ namespace DiceGame
 {
     public partial class ClientForm : Form
     {
-        private string playerName;
+        public string playerName { get; set; }
         private int currentCountOfDices = 1;
-        private int currentDiceValue = 1;
+        private int currentDiceValue = 2;
 
         List<Bitmap> diceImages = new List<Bitmap>() { Resource1._1_dots_removebg_preview, Resource1._2_dots_removebg_preview, Resource1._3_dots_removebg_preview,
             Resource1._4_dots_removebg_preview, Resource1._5_dots_removebg_preview, Resource1._6_dots_removebg_preview };
@@ -23,19 +23,28 @@ namespace DiceGame
 
         Client client;
 
-        Dices dices = new Dices();
+        List<PictureBox> dicePictureBoxes;
 
         public ClientForm(string name, int port)
         {
             InitializeComponent();
 
+            dicePictureBoxes = new List<PictureBox>() { firstDicePictureBox, secondDicePictureBox, thirdDicePictureBox, fourthDicePictureBox, fifthDicePictureBox };
+
             playerName = name;
             player1NameLabel.Text = name;
 
-            //client = new Client(this);
-            //client.localPort = port;
+            client = new Client(this, port);
         }
 
+        public void HidePlayersDices()
+        {
+            readyButton.Hide();
+
+            topPlayerPanel.Hide();
+            leftPlayerPanel.Hide();
+            rightPlayerPanel.Hide();
+        }
         public void HideBetAndTrustPanels()
         {
             trustPanel.Hide();
@@ -47,20 +56,62 @@ namespace DiceGame
             betPanel.Show();
         }
 
-        private void ChangeDicesOnTable()
+        public void RemovePlayersDice(Player player)
         {
+            Control control = player.dicePanel.Controls[player.dicePanel.Controls.Count - 1]; 
 
+            //player.dicePanel.Controls.Remove(control);
+            control.Dispose();
+        }
+        public void ChangeDicesOnTable(Player player)
+        {
+            for(int i = 0; i < player.dices.Count(); i++)
+            {
+                dicePictureBoxes[i].Image = diceImages[player.dices[i].Num - 1];
+            }
+        }
+
+        public void SetPlayersNames(List<Player> players)
+        {
+            foreach(var p in players)
+            {
+                if(p.location == DiceGame.Location.left)
+                {
+                    player2NameLabel.Text = p.Name;
+                    p.NameLabel = player2NameLabel;
+                    p.dicePanel = leftPlayerPanel;
+                }
+                else if(p.location == DiceGame.Location.top)
+                {
+                    player3NameLabel.Text = p.Name;
+                    p.NameLabel = player3NameLabel;
+                    p.dicePanel = topPlayerPanel;
+                }
+                else if(p.location == DiceGame.Location.right)
+                {
+                    player4NameLabel.Text = p.Name;
+                    p.NameLabel = player4NameLabel;
+                    p.dicePanel = rightPlayerPanel;
+                }
+                else if(p.location == DiceGame.Location.bottom)
+                {
+                    p.NameLabel = player1NameLabel;
+                    p.dicePanel = dicesPanel;
+                }
+
+                p.NameLabel.Show();
+            }
         }
 
         private void CloseForm(object sender, EventArgs e)
         {
-            //if (client.Alive)
-            //{
-            //    this.Invoke(new MethodInvoker(() =>
-            //    {
-            //        client.Exit();
-            //    }));
-            //}
+            if (client.Alive)
+            {
+                this.Invoke(new MethodInvoker(() =>
+                {
+                    client.Exit();
+                }));
+            }
             Form ifrm = Application.OpenForms[0];
             ifrm.Close();
         }
@@ -88,9 +139,7 @@ namespace DiceGame
                 currentDiceValue = 1;
             }
 
-            currentDiceValuePictureBox.Image = diceImages[currentDiceValue-1];
-            
-
+            currentDiceValuePictureBox.Image = diceImages[currentDiceValue - 1];
         }
 
         private void DecreaseDiceValueButton_Click(object sender, EventArgs e)
@@ -110,11 +159,13 @@ namespace DiceGame
         private void TrustButton_Click(object sender, EventArgs e)
         {
             client.SendMessage("верю");
+            HideBetAndTrustPanels();
         }
 
         private void NoTrustButton_Click(object sender, EventArgs e)
         {
             client.SendMessage("не верю");
+            HideBetAndTrustPanels();
         }
 
         private void ReadyButton_Click(object sender, EventArgs e)
@@ -123,29 +174,112 @@ namespace DiceGame
             readyButton.Text = "Ждём";
             readyButton.Enabled = false;
 
-            client.SendMessage($"{playerName} готов");
+            client.SendMessage($"готов {playerName}");
         }
-        public void ShowWhoseTurn(string name) //мб сделать не по имени, а по id
+        public void ShowWhoseTurn(Player player) 
         {
-            foreach(var o in opponents)
+            foreach (var c in this.Controls.OfType<Label>())
             {
-                if (o.Name.Equals(name))
-                {
-                    o.NameLabel.ForeColor = Color.Green;
-
-                    if (o.Name.Equals(playerName))
-                    {
-                        ShowBetAndTrustPanel();
-                    }
-                }
+                c.ForeColor = Color.Black;
             }
+            player.NameLabel.ForeColor = Color.Green;
             
         }
+        public void ShowBetNotification(List<object> list)
+        {
+            NotificationBetPanel.Hide(); //сткрываем текст оповещения ставка
+            trustNotificationLabel.Hide(); //сткрываем текст оповещения верю/не верю 
+
+            Bet bet = (Bet)list[0];
+            Player player = (Player)list[1];
+            Control notification;
+            if (bet.betType == BetType.bet)
+            {
+                currentCountOfDices = bet.CountOfDices;
+                currentCountOfDicesLabel.Text = currentCountOfDices.ToString();
+                currentDiceValue = bet.DiceValue;
+                currentDiceValuePictureBox.Image = diceImages[currentDiceValue - 1];
+
+                CountOfDicesLabel.Text = bet.CountOfDices.ToString();
+                diceValuePictureBox.Image = diceImages[bet.DiceValue - 1];
+                notification = NotificationBetPanel;
+
+            }
+            else if(bet.betType == BetType.notTrust)
+            {
+                trustNotificationLabel.Text = "Не верю";
+                notification = trustNotificationLabel;
+
+            }
+            else 
+            {
+                trustNotificationLabel.Text = "Верю";
+                notification = trustNotificationLabel;
+
+            }
+
+            if (player.location == DiceGame.Location.right)
+            {
+                Point p = new Point(player.NameLabel.Location.X - notification.Width - 5, player.NameLabel.Location.Y);
+                notification.Location = p;
+            }
+            else if(player.location == DiceGame.Location.top)
+            {
+                Point p = new Point(player.NameLabel.Location.X , player.NameLabel.Location.Y + player.NameLabel.Height + 5);
+                notification.Location = p;
+            }
+            else if(player.location == DiceGame.Location.left)
+            {
+                Point p = new Point(player.NameLabel.Location.X + player.NameLabel.Width + 5, player.NameLabel.Location.Y);
+                notification.Location = p;
+            }
+            else if(player.location == DiceGame.Location.bottom)
+            {
+                Point p = new Point(player.NameLabel.Location.X, player.NameLabel.Location.Y - player.NameLabel.Height - 5);
+                notification.Location = p;
+            }
+            notification.Show();
+
+        }
+
+        public void ShowPlayersDices(List<Player> players)
+        {
+            foreach(var p in players)
+            {
+                for(int i = 0; i < p.dices.Count; i++)
+                {
+                    ((PictureBox)p.dicePanel.Controls[i]).Image = diceImages[p.dices[i].Num - 1];
+                }
+            }
+
+            foreach (var p in players)
+            {
+                if (p.location == DiceGame.Location.top)
+                {
+                    topPlayerPanel.Show();
+                }
+                else if (p.location == DiceGame.Location.left)
+                {
+                    leftPlayerPanel.Show();
+                }
+                else if (p.location == DiceGame.Location.right)
+                {
+                    rightPlayerPanel.Show();
+                }
+            }
+        }
+
+        
 
         private void MakeBetButton_Click(object sender, EventArgs e)
         {
             client.SendMessage($"ставка {currentCountOfDices} {currentDiceValue}");
             HideBetAndTrustPanels();
+        }
+
+        public void GetLog(string mes)
+        {
+            logLabel.Text = $"{logLabel.Text}/n {mes}";
         }
     }
 }

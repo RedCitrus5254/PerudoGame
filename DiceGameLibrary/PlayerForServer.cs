@@ -11,13 +11,13 @@ namespace DiceGameLibrary
 
         public IPEndPoint ipEndPoint { get; set; }
 
-        public List<Dice> DiceList { get; set; } = new List<Dice>(5);
+        public List<Dice> DiceList { get; set; } = new List<Dice>();
 
         public bool IsReady { get; set; } = false;
 
         public PlayerForServer()
         {
-            for(int i=0;i<DiceList.Count; i++)
+            for(int i = 0;i < 5; i++)
             {
                 DiceList.Add(new Dice());
             }
@@ -34,6 +34,9 @@ namespace DiceGameLibrary
             return false;
         }
 
-        
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

@@ -4,20 +4,15 @@ using System.Text;
 
 namespace DiceGameLibrary
 {
-    public class Dices
-    {
-        public List<Dice> DiceList { get; set; } = new List<Dice>(5);
-        public Dices()
-        {
-            for (int i = 0; i < DiceList.Count; i++)
-            {
-                DiceList[i] = new Dice();
-            }
-        }
-    }
+    
     public class Dice
     {
         public int Num { get; set; }
+
+        public override string ToString()
+        {
+            return Num.ToString();
+        }
     }
 
     public static class RandomDiceValue

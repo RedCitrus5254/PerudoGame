@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DiceGameLibrary;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -21,16 +22,28 @@ namespace DiceGame
         IPEndPoint serverEndPoint;
 
         private List<Player> opponents = new List<Player>();
+        private List<Player> players = new List<Player>();
 
-        public delegate void UpdateForm(string str);
-        
+        private Player thisPlayer = new Player();
+
+        //private List<Dice> dices = new List<Dice>();
+
+        public delegate void UpdateForm<T>(T str);
+        public delegate void SendDataToForm<T>(List<T> list);
 
         ClientForm form;
 
         public bool Alive { get; set; } = false; // будет ли работать поток для приема
 
-        public Client(ClientForm form1)
+        public Client(ClientForm form1, int port)
         {
+            Alive = true;
+            localPort = port;
+
+            thisPlayer.Name = form1.playerName;
+            thisPlayer.location = Location.bottom;
+            players.Add(thisPlayer);
+
             form = form1;
             EndPoint localPoint = new IPEndPoint(IPAddress.Parse(localAddress), localPort);
             socket.Bind(localPoint);
@@ -40,6 +53,7 @@ namespace DiceGame
             Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
             receiveThread.Start();
 
+            SendMessage($"подключился {form.playerName}");
             
         }
 
@@ -61,21 +75,30 @@ namespace DiceGame
             EndPoint remoteEP = serverEndPoint;
             try
             {
-                
-                StringBuilder builder = new StringBuilder();
-
-                byte[] data = new byte[256]; //socket.Receive(ref remoteIp); // получаем данные
-                int bytes = 0; // количество полученных байтов
-                do
+                while (true)
                 {
-                    bytes = socket.ReceiveFrom(data, ref remoteEP);
-                    builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+                    StringBuilder builder = new StringBuilder();
+
+                    byte[] data = new byte[256]; //socket.Receive(ref remoteIp); // получаем данные
+                    int bytes = 0; // количество полученных байтов
+                    do
+                    {
+                        bytes = socket.ReceiveFrom(data, ref remoteEP);
+                        builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+                    }
+                    while (socket.Available > 0);
+
+                    string message = builder.ToString();
+                    string[] messages = message.Split(';');
+                    
+                    foreach(string m in messages)
+                    {
+                        ProcessingResponse(m);
+                    }
+
+                    
                 }
-                while (socket.Available > 0);
-
-                string message = builder.ToString();
-
-                ProcessingResponse(message);
+                
             }
             catch (ObjectDisposedException)
             {
@@ -89,42 +112,227 @@ namespace DiceGame
             }
             finally
             {
-                socket.Close();
+                if(socket != null)
+                {
+                    socket.Close();
+                }
             }
         }
 
         private void ProcessingResponse(string message) //TODO
         {
-            string[] mass = message.Split(' ');
-            if (mass[0].Equals($"ход"))
+            try
             {
-                form.Invoke(new UpdateForm(form.ShowWhoseTurn), mass[1]);
+                string[] mass = message.Split(' ');
+                if (mass[0].Equals($"ход"))
+                {
+                    if (mass[1].Equals(form.playerName))
+                    {
+                        form.Invoke(new MethodInvoker(form.ShowBetAndTrustPanel));
+                        return;
+                    }
+                    Player player = players.Find(x => x.Name.Equals(mass[1]));
+                    form.Invoke(new UpdateForm<Player>(form.ShowWhoseTurn), player);
+                }
+                else if (mass[0].Equals("ставка"))
+                {
+                    Player player;
+                    if (mass[1].Equals(thisPlayer.Name))
+                    {
+                        player = thisPlayer;
+                    }
+                    else
+                    {
+                        player = players.Find(x => x.Name.Equals(mass[1]));
+                    }
+
+                    Bet bet = new Bet() { betType = BetType.bet, CountOfDices = Int32.Parse(mass[2]), DiceValue = Int32.Parse(mass[3]) };
+
+                    form.Invoke(new SendDataToForm<object>(form.ShowBetNotification), new List<object>() { bet, player });
+                }
+                else if (mass[0].Equals($"выбыл"))
+                {
+                    //form.Invoke(new UpdateForm(), mass[1]);
+                }
+                else if (mass[0].Equals("верю"))
+                {
+                    Player player;
+                    if (mass[1].Equals(thisPlayer.Name))
+                    {
+                        player = thisPlayer;
+                    }
+                    else
+                    {
+                        player = players.Find(x => x.Name.Equals(mass[1]));
+                    }
+                    Bet bet = new Bet() { betType = BetType.trust };
+
+                    form.Invoke(new SendDataToForm<object>(form.ShowBetNotification), new List<object>() { bet, player });
+                }
+                else if (mass[0].Equals("не"))//не верю
+                {
+                    Player player;
+                    if (mass[2].Equals(thisPlayer.Name))
+                    {
+                        player = thisPlayer;
+                    }
+                    else
+                    {
+                        player = players.Find(x => x.Name.Equals(mass[2]));
+                    }
+                    Bet bet = new Bet() { betType = BetType.notTrust };
+
+                    form.Invoke(new SendDataToForm<object>(form.ShowBetNotification), new List<object>() { bet, player });
+                }
+                else if (mass[0].Equals("кости"))
+                {
+                    for (int i = 1; i < mass.Length; i++)
+                    {
+                        if (thisPlayer.Name.Equals(mass[i]))
+                        {
+                            //i++;
+                            //for(int j = 0; j < dices.Count(); j++)
+                            //{
+                            //    dices[j].Num = Int32.Parse(mass[i]);
+                            //    i++;
+                            //}
+                            i += thisPlayer.dices.Count;
+                        }
+                        else
+                        {
+                            Player p = opponents.Find(x => x.Name.Equals(mass[i]));
+                            i++;
+                            for (int j = 0; j < p.dices.Count(); j++)
+                            {
+                                p.dices[j].Num = Int32.Parse(mass[i]);
+                                i++;
+                            }
+                        }
+                    }
+
+                    string log = "кости игроков:";
+                    //log += dices.Where(x => x!=null);
+                    foreach (var p in opponents)
+                    {
+                        log += " " + p;
+                        foreach (var d in p.dices)
+                        {
+                            log += " " + d.Num;
+                        }
+                    }
+                    //LogMessage(log);
+
+                    form.Invoke(new SendDataToForm<Player>(form.ShowPlayersDices), opponents);
+                }
+                else if (mass[0].Equals("твои"))
+                {
+                    try
+                    {
+                        for (int i = 2; i < mass.Length; i++)
+                        {
+                            thisPlayer.dices[i - 2].Num = Int32.Parse(mass[i]);
+                        }
+                        form.Invoke(new UpdateForm<Player>(form.ChangeDicesOnTable), thisPlayer);
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(e.Message);
+                    }
+
+                    string log = "твои кости:";
+                    //log += dices.Where(x => x!=null);
+                    foreach (var d in thisPlayer.dices)
+                    {
+                        log += d;
+                    }
+                    LogMessage(log);
+
+                    //form.Invoke(new SendDataToForm<Dice>(form.ChangeDicesOnTable), thisPlayer.dices);
+                }
+                else if (mass[0].Equals("проиграл"))
+                {
+                    Player player = players.Find(x => x.Name.Equals(mass[1]));
+                    player.dices.RemoveAt(thisPlayer.dices.Count - 1);
+                    form.Invoke(new UpdateForm<Player>(form.RemovePlayersDice), player);
+                }
+                else if (mass[0].Equals("количество"))
+                {
+                    int n = Int32.Parse(mass[2]);
+                    string[] arr = new string[n];
+                    Array.Copy(mass, 3, arr, 0, n);
+                    SetPlayersOnTable(n, arr);
+
+                    form.Invoke(new SendDataToForm<Player>(form.SetPlayersNames), players);
+                }
+                else if (mass[0].Equals("игра") || mass[0].Equals("новый"))
+                {
+                    form.Invoke(new MethodInvoker(form.HidePlayersDices));
+                }
             }
-            else if (mass[0].Equals("ставка"))
+            catch(Exception ex)
             {
-
+                //MessageBox.Show(message);
             }
-            else if(mass[0].Equals($"выбыл"))
+
+        }
+
+        private void SetPlayersOnTable(int countOfPlayers, string[] playersNames) //добавляем игроков в правильном порядке   || TODO переписать функцию нормально
+        {
+            if (countOfPlayers == 2)
             {
-
+                Player p1 = new Player();
+                p1.location = Location.top;
+                foreach(var p in playersNames)
+                {
+                    if (p != form.playerName)
+                    {
+                        p1.Name = p;
+                    }
+                }
+                opponents.Add(p1);
             }
-            else if (mass[0].Equals("верю"))
+            else if(countOfPlayers == 3)
             {
-
+                for(int i = 0; i < 3; i++)
+                {
+                    if (playersNames[i].Equals(form.playerName))
+                    {
+                        i++;
+                        opponents.Add(new Player() { Name = playersNames[i % 3], location = Location.left });
+                        i++;
+                        opponents.Add(new Player() { Name = playersNames[i % 3], location = Location.top });
+                    }
+                }
             }
-            else if (mass[0].Equals("не"))//не верю
+            else if(countOfPlayers == 4)
             {
-
+                for (int i = 0; i < 4; i++)
+                {
+                    if (playersNames[i].Equals(form.playerName))
+                    {
+                        i++;
+                        opponents.Add(new Player() { Name = playersNames[i % 4], location = Location.left });
+                        i++;
+                        opponents.Add(new Player() { Name = playersNames[i % 4], location = Location.top });
+                        i++;
+                        opponents.Add(new Player() { Name = playersNames[i % 4], location = Location.right });
+                    }
+                }
             }
-            else if (mass[0].Equals("кости"))
+
+            players.AddRange(opponents);
+
+            string log = "Добавление игроков на стол";
+            foreach(var p in opponents)
             {
-
+                log += p;
             }
-            else if (mass[0].Equals("твои"))
-            {
+            LogMessage(log);
+        }
 
-            }
-
+        private void LogMessage(string mes)
+        {
+            form.Invoke(new UpdateForm<string>(form.GetLog), mes);
         }
 
         public void Exit()

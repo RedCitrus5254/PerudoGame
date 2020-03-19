@@ -18,11 +18,11 @@ namespace Server
     }
     class Server
     {
-        static string remoteAddress = "127.0.0.1"; // хост для отправки данных
+        //static string remoteAddress = "127.0.0.1"; // хост для отправки данных
         //static int remotePort = 8005; // порт для отправки данных
         static int localPort = 8004; // локальный порт для прослушивания входящих подключений
 
-        private int newId = 0;
+        //private int newId = 0;
 
         //List<PlayerForServer> players = new List<PlayerForServer>();
         PlayersTable playersTable = new PlayersTable();
@@ -48,7 +48,7 @@ namespace Server
                 IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), localPort);
                 socket.Bind(endPoint);
 
-                Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage));
+                Thread receiveThread = new Thread(new ThreadStart(ReceiveMessage)) { IsBackground = false };
                 receiveThread.Start();
             }
             catch (Exception ex)
@@ -67,7 +67,7 @@ namespace Server
             SendMessageToAllPlayers("игра началась");
 
             PlayerForServer player = playersTable.GetNextPlayer();
-            SendMessageToAllPlayers($"ход игрока {player.Name}");
+            SendMessageToAllPlayers($"ход {player.Name}");
         }
 
         private void SendMessageToAllPlayers(string message)
@@ -82,8 +82,9 @@ namespace Server
         {
             try
             {
-                byte[] data = Encoding.Unicode.GetBytes(message);
+                byte[] data = Encoding.Unicode.GetBytes(message+";");
                 socket.SendTo(data, ePoint); // отправка
+                Console.WriteLine($"отправил {message}");
             }
             catch (Exception ex)
             {
@@ -106,14 +107,14 @@ namespace Server
         private void SendPlayersDicesToAllPlayers()
         {
             StringBuilder sb = new StringBuilder();
-            foreach(var p in playersTable.players)
+            sb.Append($"кости");
+            foreach (var p in playersTable.players)
             {
-                sb.Append($"кости игрока {playersTable.players}: ");
+                sb.Append($" {p}");
                 foreach(var d in p.DiceList)
                 {
-                    sb.Append($"{d.Num} ");
+                    sb.Append($" {d.Num}");
                 }
-                sb.Append("; ");
             }
             SendMessageToAllPlayers(sb.ToString());
         }
@@ -138,7 +139,7 @@ namespace Server
                 while (true)
                 {
                     StringBuilder builder = new StringBuilder();
-                    EndPoint remoteIp = null; // адрес входящего подключения
+                    EndPoint remoteIp = new IPEndPoint(IPAddress.Any, 0); // адрес входящего подключения
 
                     byte[] data = new byte[256]; //socket.Receive(ref remoteIp); // получаем данные
                     int bytes = 0; // количество полученных байтов
@@ -160,6 +161,7 @@ namespace Server
             finally
             {
                 socket.Close();
+                Console.ReadLine();
             }
         }
 
@@ -169,24 +171,26 @@ namespace Server
 
             if (mass[0].Equals("подключился"))
             {
-                var pl = from p in playersTable.players
-                         where p.Name.Equals(mass[1])
-                         select p;
-                if (pl.Count() == 0)
+                var pl = playersTable.players.Find(x => x.Name.Equals(mass[1]));
+
+                if (pl == null)
                 {
                     playersTable.Add(mass[1], ePoint);
-                    //оповестить других игроков 
                 }
+                
+                //оповестить других игроков 
+
+
             }
             else if (mass[0].Equals("готов"))
             {
-                var player = from p in playersTable.players
-                             where (p.Name.Equals(mass[1])) && (p.IsReady == false)
-                             select p;
-                foreach(var p in player)
+                var player = playersTable.players.Find(x => x.Name.Equals(mass[1]) && x.IsReady == false);
+
+                if (player != null)
                 {
-                    p.IsReady = true;
-                }             
+                    playersReady++;
+                    player.IsReady = true;
+                }
 
                 if(playersReady == playersTable.players.Count())
                 {
@@ -204,8 +208,8 @@ namespace Server
             {
                 bool flag = false; //проверка выполнения условий ставки
 
-                int newCountOfDices = Convert.ToInt32(mass[2]);
-                int newValueOfDices = Convert.ToInt32(mass[3]);
+                int newCountOfDices = Convert.ToInt32(mass[1]);
+                int newValueOfDices = Convert.ToInt32(mass[2]);
                 if (currentBetValueOfDices!=1 && newValueOfDices != 1)
                 {
                     if(newCountOfDices>currentBetCountOfDices||
@@ -252,8 +256,8 @@ namespace Server
                     currentBetCountOfDices = Int32.Parse(mass[1]);
                     currentBetValueOfDices = Int32.Parse(mass[2]);
 
+                    SendMessageToAllPlayers($"ставка {playersTable.GetCurrentPlayer().Name} {mass[1]} {mass[2]}");
                     PlayerForServer player = playersTable.GetNextPlayer();
-                    SendMessageToAllPlayers($"ставка {playersTable.GetCurrentPlayer()} {mass[1]} {mass[2]}");
                     SendMessageToAllPlayers($"ход {player.Name}");
                 }
 
@@ -275,16 +279,23 @@ namespace Server
 
         private void CheckResults(Answer answer)
         {
-            PlayerForServer loser = SearchLoser(answer);
-            SendMessageToAllPlayers($"верю {playersTable.GetCurrentPlayer().Name}");
-
+            
+            if(answer == Answer.NotTrust)
+            {
+                SendMessageToAllPlayers($"не верю {playersTable.GetCurrentPlayer().Name}");
+            }
+            else
+            {
+                SendMessageToAllPlayers($"верю {playersTable.GetCurrentPlayer().Name}");
+            }
             SendPlayersDicesToAllPlayers();
-
+            PlayerForServer loser = SearchLoser(answer);
             SendMessageToAllPlayers($"проиграл {loser.Name}");
 
             if (playersTable.DeleteDice(loser)) //если у игрока остались кости
             {
-                NewRound($"ход {loser.Name}");
+                playersTable.currentPlayer = playersTable.players.FindIndex(x => x == loser);
+                NewRound($"{loser.Name}");
             }
             else //если у игрока не осталось костей
             {
@@ -293,7 +304,7 @@ namespace Server
 
                 if (playersTable.players.Count > 1)
                 {
-                    NewRound($"ход {playersTable.GetNextPlayer().Name}");
+                    NewRound($"{playersTable.GetNextPlayer().Name}");
                 }
                 else
                 {
@@ -334,6 +345,9 @@ namespace Server
 
         private void NewRound(string playerName)
         {
+            currentBetCountOfDices = 0;
+            currentBetValueOfDices = 2;
+
             SendMessageToAllPlayers("новый раунд");
             playersTable.SetNewDiceValues();
             SendPlayersDices();

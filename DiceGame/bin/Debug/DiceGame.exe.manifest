@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <asmv1:assemblyIdentity name="DiceGame.exe" version="1.0.0.2" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
+  <asmv1:assemblyIdentity name="DiceGame.exe" version="1.0.0.6" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
   <application />
   <entryPoint>
     <assemblyIdentity name="DiceGame" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
@@ -42,26 +42,26 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="DiceGame.exe" size="6374896">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="DiceGame.exe" size="6388720">
       <assemblyIdentity name="DiceGame" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>4X8vCTR91Mt/+WZmsCBl5w6XmsYk6rJwyWcQvasdDK4=</dsig:DigestValue>
+        <dsig:DigestValue>UCTUQFLfoZCdwBzvExGqfUWA8XruqSI1ZuyHp+YdZzA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="DiceGameLibrary.dll" size="5632">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="DiceGameLibrary.dll" size="6144">
       <assemblyIdentity name="DiceGameLibrary" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>1jI+2xOrAuX1aj4+9uBE2Q8yv4b7+U+0nd0yteXSrX0=</dsig:DigestValue>
+        <dsig:DigestValue>j25WLkMYp4uYoyWXU09cN+boapmztZxwNQC19E6KasY=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
