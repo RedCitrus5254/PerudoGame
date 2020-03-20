@@ -280,7 +280,18 @@ namespace DiceGame
                 }
             }
         }
-
+        public void ShowWinner(string name)
+        {
+            Label label = new Label();
+            label.Text = name;
+            label.AutoSize = true;
+            label.Font = new System.Drawing.Font("Calisto MT", 40.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            label.Location = new System.Drawing.Point(300, 250);
+            label.Visible = false;
+            label.BackColor = System.Drawing.Color.Transparent;
+            this.Controls.Add(label);
+            label.Show();
+        }
         
 
         private void MakeBetButton_Click(object sender, EventArgs e)

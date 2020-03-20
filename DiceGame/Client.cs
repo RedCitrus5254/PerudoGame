@@ -230,7 +230,7 @@ namespace DiceGame
                     LogMessage(log);
 
                     form.Invoke(new SendDataToForm<Player>(form.ShowPlayersDices), opponents);
-                    Thread.Sleep(3000);
+                    Thread.Sleep(1000);
                 }
                 else if (mass[0].Equals("твои"))
                 {
@@ -275,6 +275,10 @@ namespace DiceGame
                 else if (mass[0].Equals("игра") || mass[0].Equals("новый"))
                 {
                     form.Invoke(new MethodInvoker(form.HidePlayersDices));
+                }
+                else if (mass[0].Equals("выиграл"))
+                {
+                    form.Invoke(new UpdateForm<string>(form.ShowWinner), $"Поздравляем {mass[1]}!");
                 }
             }
             catch(Exception ex)
