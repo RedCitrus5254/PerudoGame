@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DiceGameLibrary;
@@ -39,6 +40,11 @@ namespace DiceGame
 
         public void HidePlayersDices()
         {
+            currentCountOfDicesLabel.Text = 1.ToString();
+            currentCountOfDices = 1;
+            currentDiceValuePictureBox.Image = diceImages[1];
+            currentDiceValue = 2;
+
             readyButton.Hide();
 
             topPlayerPanel.Hide();
@@ -176,11 +182,17 @@ namespace DiceGame
 
             client.SendMessage($"готов {playerName}");
         }
+
+        public void SetLabelColorToRed(Label label)
+        {
+            label.ForeColor = Color.Red;
+        }
         public void ShowWhoseTurn(Player player) 
         {
             foreach (var c in this.Controls.OfType<Label>())
             {
-                c.ForeColor = Color.Black;
+                if(c.ForeColor == Color.Green)
+                    c.ForeColor = Color.Black;
             }
             player.NameLabel.ForeColor = Color.Green;
             
@@ -235,7 +247,7 @@ namespace DiceGame
             }
             else if(player.location == DiceGame.Location.bottom)
             {
-                Point p = new Point(player.NameLabel.Location.X, player.NameLabel.Location.Y - player.NameLabel.Height - 5);
+                Point p = new Point(player.NameLabel.Location.X, player.NameLabel.Location.Y - notification.Height - 5);
                 notification.Location = p;
             }
             notification.Show();

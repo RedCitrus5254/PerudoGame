@@ -21,13 +21,14 @@ namespace Server
         }
         public void Delete(string name)
         {
-            foreach(var p in players)
-            {
-                if (p.Name.Equals(name))
-                {
-                    players.Remove(p);
-                }
-            }
+            //foreach(var p in players)
+            //{
+            //    if (p.Name.Equals(name))
+            //    {
+            //        players.Remove(p);
+            //        break;
+            //    }
+            //}
             for(int i = 0; i < players.Count(); i++)
             {
                 if (players[i].Name.Equals(name))

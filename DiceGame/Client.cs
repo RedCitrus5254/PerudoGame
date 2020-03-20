@@ -126,12 +126,11 @@ namespace DiceGame
                 string[] mass = message.Split(' ');
                 if (mass[0].Equals($"ход"))
                 {
-                    if (mass[1].Equals(form.playerName))
+                    Player player = players.Find(x => x.Name.Equals(mass[1]));
+                    if (player==thisPlayer)
                     {
                         form.Invoke(new MethodInvoker(form.ShowBetAndTrustPanel));
-                        return;
                     }
-                    Player player = players.Find(x => x.Name.Equals(mass[1]));
                     form.Invoke(new UpdateForm<Player>(form.ShowWhoseTurn), player);
                 }
                 else if (mass[0].Equals("ставка"))
@@ -152,7 +151,17 @@ namespace DiceGame
                 }
                 else if (mass[0].Equals($"выбыл"))
                 {
-                    //form.Invoke(new UpdateForm(), mass[1]);
+                    Player player = players.Find(x => x.Name.Equals(mass[1]));
+                    Label label = players.Find(x => x.Name.Equals(mass[1])).NameLabel;
+                    if (mass[1].Equals(thisPlayer.Name))
+                    {
+
+                    }
+                    else
+                    {
+                        opponents.Remove(player);
+                    }
+                    form.Invoke(new UpdateForm<Label>(form.SetLabelColorToRed), label);
                 }
                 else if (mass[0].Equals("верю"))
                 {
@@ -201,15 +210,13 @@ namespace DiceGame
                         else
                         {
                             Player p = opponents.Find(x => x.Name.Equals(mass[i]));
-                            i++;
-                            for (int j = 0; j < p.dices.Count(); j++)
+                            for (int j = 0; j < p.dices.Count; j++)
                             {
-                                p.dices[j].Num = Int32.Parse(mass[i]);
                                 i++;
+                                p.dices[j].Num = Int32.Parse(mass[i]);
                             }
                         }
                     }
-
                     string log = "кости игроков:";
                     //log += dices.Where(x => x!=null);
                     foreach (var p in opponents)
@@ -220,9 +227,10 @@ namespace DiceGame
                             log += " " + d.Num;
                         }
                     }
-                    //LogMessage(log);
+                    LogMessage(log);
 
                     form.Invoke(new SendDataToForm<Player>(form.ShowPlayersDices), opponents);
+                    Thread.Sleep(3000);
                 }
                 else if (mass[0].Equals("твои"))
                 {
@@ -252,7 +260,7 @@ namespace DiceGame
                 else if (mass[0].Equals("проиграл"))
                 {
                     Player player = players.Find(x => x.Name.Equals(mass[1]));
-                    player.dices.RemoveAt(thisPlayer.dices.Count - 1);
+                    player.dices.RemoveAt(player.dices.Count - 1);
                     form.Invoke(new UpdateForm<Player>(form.RemovePlayersDice), player);
                 }
                 else if (mass[0].Equals("количество"))
