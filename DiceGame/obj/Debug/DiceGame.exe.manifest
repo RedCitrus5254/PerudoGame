@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="DiceGame.exe" size="6389744">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="DiceGame.exe" size="6391280">
       <assemblyIdentity name="DiceGame" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>dfxwLFH6zDwiIySa/HJ8rv36y7R3kBngu+S6TX5Xxq0=</dsig:DigestValue>
+        <dsig:DigestValue>6Um9ech4M+fVDSYzNbgZd9bJfkV7kQoDMOoG7Yoqdf4=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

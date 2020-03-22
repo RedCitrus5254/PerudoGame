@@ -35,6 +35,8 @@ namespace DiceGame
 
         public bool Alive { get; set; } = false; // будет ли работать поток для приема
 
+        private bool isNewRound = false;
+
         public Client(ClientForm form1, int port)
         {
             Alive = true;
@@ -129,8 +131,17 @@ namespace DiceGame
                     Player player = players.Find(x => x.Name.Equals(mass[1]));
                     if (player==thisPlayer)
                     {
-                        form.Invoke(new MethodInvoker(form.ShowBetAndTrustPanel));
+                        if (isNewRound)
+                        {
+                            form.Invoke(new MethodInvoker(form.ShowBetPanel));
+                        }
+                        else
+                        {
+                            form.Invoke(new MethodInvoker(form.ShowBetAndTrustPanel));
+                        }
+                        
                     }
+                    isNewRound = false;
                     form.Invoke(new UpdateForm<Player>(form.ShowWhoseTurn), player);
                 }
                 else if (mass[0].Equals("ставка"))
@@ -274,6 +285,7 @@ namespace DiceGame
                 }
                 else if (mass[0].Equals("игра") || mass[0].Equals("новый"))
                 {
+                    isNewRound = true;
                     form.Invoke(new MethodInvoker(form.HidePlayersDices));
                 }
                 else if (mass[0].Equals("выиграл"))

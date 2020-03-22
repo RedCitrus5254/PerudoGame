@@ -17,6 +17,8 @@ namespace DiceGame
         private int currentCountOfDices = 1;
         private int currentDiceValue = 2;
 
+        private Bet previousBet = new Bet() { betType = BetType.bet, CountOfDices = 0, DiceValue = 2 };
+
         List<Bitmap> diceImages = new List<Bitmap>() { Resource1._1_dots_removebg_preview, Resource1._2_dots_removebg_preview, Resource1._3_dots_removebg_preview,
             Resource1._4_dots_removebg_preview, Resource1._5_dots_removebg_preview, Resource1._6_dots_removebg_preview };
 
@@ -25,6 +27,8 @@ namespace DiceGame
         Client client;
 
         List<PictureBox> dicePictureBoxes;
+
+        private bool isBetCorrect = false;
 
         public ClientForm(string name, int port)
         {
@@ -45,6 +49,8 @@ namespace DiceGame
             currentDiceValuePictureBox.Image = diceImages[1];
             currentDiceValue = 2;
 
+            previousBet = new Bet() { betType = BetType.bet, CountOfDices = 0, DiceValue = 2 };
+
             readyButton.Hide();
 
             topPlayerPanel.Hide();
@@ -53,12 +59,21 @@ namespace DiceGame
         }
         public void HideBetAndTrustPanels()
         {
+            correctnessLabel.Hide();
             trustPanel.Hide();
             betPanel.Hide();
         }
         public void ShowBetAndTrustPanel()
         {
+            SetCorrectnessLabel();
+            correctnessLabel.Show();
             trustPanel.Show();
+            betPanel.Show();
+        }
+        public void ShowBetPanel()
+        {
+            SetCorrectnessLabel();
+            correctnessLabel.Show();
             betPanel.Show();
         }
 
@@ -126,12 +141,16 @@ namespace DiceGame
         {
             currentCountOfDices += 1;
             currentCountOfDicesLabel.Text = currentCountOfDices.ToString();
+
+            SetCorrectnessLabel();
         }
 
         private void DecreaseDiceCountButton_Click(object sender, EventArgs e)
         {
             currentCountOfDices -= 1;
             currentCountOfDicesLabel.Text = currentCountOfDices.ToString();
+
+            SetCorrectnessLabel();
         }
 
         private void IncreaseDiceValueButton_Click(object sender, EventArgs e)
@@ -146,6 +165,8 @@ namespace DiceGame
             }
 
             currentDiceValuePictureBox.Image = diceImages[currentDiceValue - 1];
+
+            SetCorrectnessLabel();
         }
 
         private void DecreaseDiceValueButton_Click(object sender, EventArgs e)
@@ -160,7 +181,65 @@ namespace DiceGame
             }
 
             currentDiceValuePictureBox.Image = diceImages[currentDiceValue - 1];
+
+            SetCorrectnessLabel();
         }
+
+        private void SetCorrectnessLabel()
+        {
+            if (isBetCorrect = CheckBetCorrectness())
+            {
+                correctnessLabel.Text = "Корректная ставка";
+                correctnessLabel.ForeColor = Color.LightGreen;
+            }
+            else
+            {
+                correctnessLabel.Text = "Некорректная ставка";
+                correctnessLabel.ForeColor = Color.Red;
+            }
+        }
+        private bool CheckBetCorrectness()
+        {
+            bool flag = false;
+            if (previousBet.DiceValue != 1 && currentDiceValue != 1)
+            {
+                if (currentCountOfDices > previousBet.CountOfDices ||
+                    currentDiceValue > previousBet.DiceValue && currentCountOfDices == previousBet.CountOfDices)
+                {
+                    flag = true;
+                }
+            }
+            else if (previousBet.DiceValue == 1 && currentDiceValue == 1)
+            {
+                if (currentCountOfDices > previousBet.CountOfDices)
+                {
+                    flag = true;
+                }
+            }
+            else if (previousBet.DiceValue == 1 && currentDiceValue != 1)
+            {
+                if (currentCountOfDices > previousBet.CountOfDices * 2)
+                {
+                    flag = true;
+                }
+            }
+            else if (previousBet.DiceValue != 1 && currentDiceValue == 1)
+            {
+                int shouldBeCountOfDices = previousBet.CountOfDices / 2;
+                if (previousBet.CountOfDices % 2 == 1)
+                {
+                    shouldBeCountOfDices++;
+                }
+
+                if (currentCountOfDices >= shouldBeCountOfDices)
+                {
+                    flag = true;
+                }
+            }
+
+            return flag;
+        }
+        
 
         private void TrustButton_Click(object sender, EventArgs e)
         {
@@ -207,6 +286,8 @@ namespace DiceGame
             Control notification;
             if (bet.betType == BetType.bet)
             {
+                previousBet = bet;
+
                 currentCountOfDices = bet.CountOfDices;
                 currentCountOfDicesLabel.Text = currentCountOfDices.ToString();
                 currentDiceValue = bet.DiceValue;
@@ -296,13 +377,22 @@ namespace DiceGame
 
         private void MakeBetButton_Click(object sender, EventArgs e)
         {
-            client.SendMessage($"ставка {currentCountOfDices} {currentDiceValue}");
-            HideBetAndTrustPanels();
+            if (isBetCorrect)
+            {
+                client.SendMessage($"ставка {currentCountOfDices} {currentDiceValue}");
+                HideBetAndTrustPanels();
+            }
+            isBetCorrect = false;
         }
 
         public void GetLog(string mes)
         {
             logLabel.Text = $"{logLabel.Text}/n {mes}";
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

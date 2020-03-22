@@ -34,8 +34,8 @@ namespace Server
 
         private int playersReady = 0;
 
-        private int currentBetCountOfDices = 0;
-        private int currentBetValueOfDices = 2;
+        private int previousBetCountOfDices = 0;
+        private int previousBetValueOfDices = 2;
         
         public Server()
         {
@@ -210,32 +210,32 @@ namespace Server
 
                 int newCountOfDices = Convert.ToInt32(mass[1]);
                 int newValueOfDices = Convert.ToInt32(mass[2]);
-                if (currentBetValueOfDices!=1 && newValueOfDices != 1)
+                if (previousBetValueOfDices!=1 && newValueOfDices != 1)
                 {
-                    if(newCountOfDices>currentBetCountOfDices||
-                        newValueOfDices > currentBetValueOfDices && newCountOfDices == currentBetCountOfDices)
+                    if(newCountOfDices>previousBetCountOfDices||
+                        newValueOfDices > previousBetValueOfDices && newCountOfDices == previousBetCountOfDices)
                     {
                         flag = true;
                     }
                 }
-                else if (currentBetValueOfDices == 1 && newValueOfDices == 1)
+                else if (previousBetValueOfDices == 1 && newValueOfDices == 1)
                 {
-                    if (newCountOfDices > currentBetCountOfDices)
+                    if (newCountOfDices > previousBetCountOfDices)
                     {
                         flag = true;
                     }
                 }
-                else if(currentBetValueOfDices == 1 && newValueOfDices != 1)
+                else if(previousBetValueOfDices == 1 && newValueOfDices != 1)
                 {
-                    if(newCountOfDices > currentBetCountOfDices * 2)
+                    if(newCountOfDices > previousBetCountOfDices * 2)
                     {
                         flag = true;
                     }
                 }
-                else if (currentBetValueOfDices != 1 && newValueOfDices == 1)
+                else if (previousBetValueOfDices != 1 && newValueOfDices == 1)
                 {
-                    int shouldBeCountOfDices = currentBetCountOfDices / 2;
-                    if(currentBetCountOfDices % 2 == 1)
+                    int shouldBeCountOfDices = previousBetCountOfDices / 2;
+                    if(previousBetCountOfDices % 2 == 1)
                     {
                         shouldBeCountOfDices++;
                     }
@@ -253,8 +253,8 @@ namespace Server
 
                 if (flag == true) //если условия ставки выполнены, сообщаем ставку и передаём ход
                 {
-                    currentBetCountOfDices = Int32.Parse(mass[1]);
-                    currentBetValueOfDices = Int32.Parse(mass[2]);
+                    previousBetCountOfDices = Int32.Parse(mass[1]);
+                    previousBetValueOfDices = Int32.Parse(mass[2]);
 
                     SendMessageToAllPlayers($"ставка {playersTable.GetCurrentPlayer().Name} {mass[1]} {mass[2]}");
                     PlayerForServer player = playersTable.GetNextPlayer();
@@ -317,11 +317,11 @@ namespace Server
 
         private PlayerForServer SearchLoser(Answer answer)
         {
-            int num = playersTable.GetNumOfDefiniteDices(currentBetValueOfDices);
+            int num = playersTable.GetNumOfDefiniteDices(previousBetValueOfDices);
 
             if (answer == Answer.NotTrust) //не верю
             {
-                if (currentBetCountOfDices > num) //если ставка больше, чем костей на столе
+                if (previousBetCountOfDices > num) //если ставка больше, чем костей на столе
                 {
                     return playersTable.GetBeforePLayer(); //берём предыдущего игрока
                 }
@@ -332,7 +332,7 @@ namespace Server
             }
             else //верю
             {
-                if (currentBetCountOfDices != num)
+                if (previousBetCountOfDices != num)
                 {
                     return playersTable.players[playersTable.currentPlayer];
                 }
@@ -345,8 +345,8 @@ namespace Server
 
         private void NewRound(string playerName)
         {
-            currentBetCountOfDices = 0;
-            currentBetValueOfDices = 2;
+            previousBetCountOfDices = 0;
+            previousBetValueOfDices = 2;
 
             SendMessageToAllPlayers("новый раунд");
             playersTable.SetNewDiceValues();

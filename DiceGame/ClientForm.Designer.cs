@@ -77,6 +77,7 @@ namespace DiceGame
             this.diceValuePictureBox = new System.Windows.Forms.PictureBox();
             this.trustNotificationLabel = new System.Windows.Forms.Label();
             this.logLabel = new System.Windows.Forms.Label();
+            this.correctnessLabel = new System.Windows.Forms.Label();
             this.dicesPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.firstDicePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.secondDicePictureBox)).BeginInit();
@@ -254,9 +255,9 @@ namespace DiceGame
             this.betPanel.Controls.Add(this.decreaseDiceCountButton);
             this.betPanel.Controls.Add(this.increaseDiceValueButton);
             this.betPanel.Controls.Add(this.increaseDiceCountButton);
-            this.betPanel.Location = new System.Drawing.Point(404, 301);
+            this.betPanel.Location = new System.Drawing.Point(404, 304);
             this.betPanel.Name = "betPanel";
-            this.betPanel.Size = new System.Drawing.Size(259, 114);
+            this.betPanel.Size = new System.Drawing.Size(259, 111);
             this.betPanel.TabIndex = 7;
             this.betPanel.Visible = false;
             // 
@@ -369,7 +370,7 @@ namespace DiceGame
             // 
             this.readyButton.BackColor = System.Drawing.Color.Lime;
             this.readyButton.Font = new System.Drawing.Font("Calisto MT", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.readyButton.Location = new System.Drawing.Point(486, 257);
+            this.readyButton.Location = new System.Drawing.Point(477, 256);
             this.readyButton.Name = "readyButton";
             this.readyButton.Size = new System.Drawing.Size(109, 38);
             this.readyButton.TabIndex = 11;
@@ -634,12 +635,25 @@ namespace DiceGame
             this.logLabel.TabIndex = 18;
             this.logLabel.Text = "label1";
             // 
+            // correctnessLabel
+            // 
+            this.correctnessLabel.AutoSize = true;
+            this.correctnessLabel.BackColor = System.Drawing.Color.Transparent;
+            this.correctnessLabel.Location = new System.Drawing.Point(401, 288);
+            this.correctnessLabel.Name = "correctnessLabel";
+            this.correctnessLabel.Size = new System.Drawing.Size(35, 13);
+            this.correctnessLabel.TabIndex = 19;
+            this.correctnessLabel.Text = "label1";
+            this.correctnessLabel.Visible = false;
+            this.correctnessLabel.Click += new System.EventHandler(this.label1_Click);
+            // 
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::DiceGame.Resource1.wood;
             this.ClientSize = new System.Drawing.Size(1050, 631);
+            this.Controls.Add(this.correctnessLabel);
             this.Controls.Add(this.logLabel);
             this.Controls.Add(this.trustNotificationLabel);
             this.Controls.Add(this.NotificationBetPanel);
@@ -742,6 +756,7 @@ namespace DiceGame
         private PictureBox diceValuePictureBox;
         private Label trustNotificationLabel;
         private Label logLabel;
+        private Label correctnessLabel;
     }
 }
 
