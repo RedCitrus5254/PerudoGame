@@ -39,6 +39,7 @@ namespace Server
         
         public Server()
         {
+
             messageProcessing = ConnectingProcessing;
         }
         public void Start()
@@ -68,6 +69,8 @@ namespace Server
 
             PlayerForServer player = playersTable.GetNextPlayer();
             SendMessageToAllPlayers($"ход {player.Name}");
+
+            socket.ReceiveTimeout = 20000;
         }
 
         private void SendMessageToAllPlayers(string message)
@@ -143,15 +146,45 @@ namespace Server
 
                     byte[] data = new byte[256]; //socket.Receive(ref remoteIp); // получаем данные
                     int bytes = 0; // количество полученных байтов
-                    do
+                    try
                     {
-                        bytes = socket.ReceiveFrom(data, ref remoteIp);
-                        builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+                        do
+                        {
+                            bytes = socket.ReceiveFrom(data, ref remoteIp);
+                            builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+                        }
+                        while (socket.Available > 0);
                     }
-                    while (socket.Available > 0);
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    
 
-                    string message = builder.ToString();
-                    messageProcessing(message, (IPEndPoint)remoteIp);
+                    //string message = builder.ToString();
+                    if (builder.ToString() == null || builder.ToString().Equals(""))
+                    {
+                        SendMessageToAllPlayers($"выбыл {playersTable.GetCurrentPlayer()}");
+                        playersTable.Delete(playersTable.GetCurrentPlayer().Name);
+
+                        if (playersTable.players.Count > 1)
+                        {
+                            NewRound(playersTable.GetNextPlayer().Name);
+                        }
+                        else
+                        {
+                            SendMessageToAllPlayers($"выиграл {playersTable.players[0]}");
+                            CloseSocket();
+                            return;
+                        }
+                        
+                    }
+                    else
+                    {
+                        string message = builder.ToString();
+                        messageProcessing(message, (IPEndPoint)remoteIp);
+                    }
+                    
                 }
             }
             catch (Exception ex)
@@ -160,7 +193,7 @@ namespace Server
             }
             finally
             {
-                socket.Close();
+                CloseSocket();
                 Console.ReadLine();
             }
         }
@@ -352,6 +385,12 @@ namespace Server
             playersTable.SetNewDiceValues();
             SendPlayersDices();
             SendMessageToAllPlayers($"ход {playerName}");
+        }
+
+        private void CloseSocket()
+        {
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
         }
     }
 }
