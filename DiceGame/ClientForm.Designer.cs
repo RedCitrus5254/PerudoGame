@@ -145,6 +145,7 @@ namespace DiceGame
             this.player3NameLabel.Size = new System.Drawing.Size(76, 24);
             this.player3NameLabel.TabIndex = 2;
             this.player3NameLabel.Text = "player3";
+            this.player3NameLabel.Visible = false;
             // 
             // player1NameLabel
             // 
@@ -634,6 +635,7 @@ namespace DiceGame
             this.logLabel.Size = new System.Drawing.Size(220, 219);
             this.logLabel.TabIndex = 18;
             this.logLabel.Text = "label1";
+            this.logLabel.Visible = false;
             // 
             // correctnessLabel
             // 

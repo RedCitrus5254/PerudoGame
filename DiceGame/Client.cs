@@ -26,7 +26,6 @@ namespace DiceGame
 
         private Player thisPlayer = new Player();
 
-        //private List<Dice> dices = new List<Dice>();
 
         public delegate void UpdateForm<T>(T str);
         public delegate void SendDataToForm<T>(List<T> list);
@@ -121,7 +120,7 @@ namespace DiceGame
             }
         }
 
-        private void ProcessingResponse(string message) //TODO
+        private void ProcessingResponse(string message) 
         {
             try
             {
@@ -210,12 +209,6 @@ namespace DiceGame
                     {
                         if (thisPlayer.Name.Equals(mass[i]))
                         {
-                            //i++;
-                            //for(int j = 0; j < dices.Count(); j++)
-                            //{
-                            //    dices[j].Num = Int32.Parse(mass[i]);
-                            //    i++;
-                            //}
                             i += thisPlayer.dices.Count;
                         }
                         else
@@ -241,7 +234,7 @@ namespace DiceGame
                     LogMessage(log);
 
                     form.Invoke(new SendDataToForm<Player>(form.ShowPlayersDices), opponents);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(4000);
                 }
                 else if (mass[0].Equals("твои"))
                 {
@@ -362,16 +355,9 @@ namespace DiceGame
         public void Exit()
         {
             Alive = false;
-            //if (sender != null)
-            //{
-            //    sender.Close();
-            //}
-            //if (receiver != null)
-            //{
-            //    receiver.Close();
-            //}
             if (socket != null)
             {
+                socket.Shutdown(SocketShutdown.Both);
                 socket.Close();
             }
         }

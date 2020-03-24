@@ -54,14 +54,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Server.exe" size="13808">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Server.exe" size="13296">
       <assemblyIdentity name="Server" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>K6MyR3gtq75G/ewrCVvgKvrzljAVXU6Dk4LrKi7V/eQ=</dsig:DigestValue>
+        <dsig:DigestValue>yd9A64JeQqayL3wY3u/yc5AwSr7Xz6UZjchh5CIfKTM=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

@@ -70,7 +70,7 @@ namespace Server
             PlayerForServer player = playersTable.GetNextPlayer();
             SendMessageToAllPlayers($"ход {player.Name}");
 
-            socket.ReceiveTimeout = 20000;
+            //socket.ReceiveTimeout = 20000;
         }
 
         private void SendMessageToAllPlayers(string message)
@@ -213,7 +213,6 @@ namespace Server
                 
                 //оповестить других игроков 
 
-
             }
             else if (mass[0].Equals("готов"))
             {
@@ -343,7 +342,6 @@ namespace Server
                 {
                     SendMessageToAllPlayers($"выиграл {playersTable.players[0].Name}");
                 }
-                
             }
             
         }

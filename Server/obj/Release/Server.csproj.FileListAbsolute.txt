@@ -1,0 +1,13 @@
+C:\Users\Dmitrii\source\repos\DiceGame\Server\bin\Release\Server.exe.config
+C:\Users\Dmitrii\source\repos\DiceGame\Server\bin\Release\Server.exe.manifest
+C:\Users\Dmitrii\source\repos\DiceGame\Server\bin\Release\Server.application
+C:\Users\Dmitrii\source\repos\DiceGame\Server\bin\Release\Server.exe
+C:\Users\Dmitrii\source\repos\DiceGame\Server\bin\Release\Server.pdb
+C:\Users\Dmitrii\source\repos\DiceGame\Server\bin\Release\DiceGameLibrary.dll
+C:\Users\Dmitrii\source\repos\DiceGame\Server\bin\Release\DiceGameLibrary.pdb
+C:\Users\Dmitrii\source\repos\DiceGame\Server\obj\Release\Server.csprojAssemblyReference.cache
+C:\Users\Dmitrii\source\repos\DiceGame\Server\obj\Release\Server.exe.manifest
+C:\Users\Dmitrii\source\repos\DiceGame\Server\obj\Release\Server.application
+C:\Users\Dmitrii\source\repos\DiceGame\Server\obj\Release\Server.csproj.CopyComplete
+C:\Users\Dmitrii\source\repos\DiceGame\Server\obj\Release\Server.exe
+C:\Users\Dmitrii\source\repos\DiceGame\Server\obj\Release\Server.pdb
