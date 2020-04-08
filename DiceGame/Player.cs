@@ -21,9 +21,6 @@ namespace DiceGame
         public System.Windows.Forms.Label NameLabel { get; set; }
 
         public List<Dice> dices = new List<Dice>();
-        public int notificationLocation;
-
-        public int placeLocation;
 
         public Location location;
         public Panel dicePanel { get; set; }

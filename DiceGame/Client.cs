@@ -76,7 +76,7 @@ namespace DiceGame
             EndPoint remoteEP = serverEndPoint;
             try
             {
-                while (true)
+                while (Alive)
                 {
                     StringBuilder builder = new StringBuilder();
 
@@ -109,13 +109,14 @@ namespace DiceGame
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                //MessageBox.Show(ex.Message);
             }
             finally
             {
                 if(socket != null)
                 {
-                    socket.Close();
+
+                    Exit();
                 }
             }
         }
