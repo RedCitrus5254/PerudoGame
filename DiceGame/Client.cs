@@ -166,7 +166,7 @@ namespace DiceGame
                     Label label = players.Find(x => x.Name.Equals(mass[1])).NameLabel;
                     if (mass[1].Equals(thisPlayer.Name))
                     {
-
+                        Alive = false;
                     }
                     else
                     {
@@ -285,6 +285,11 @@ namespace DiceGame
                 else if (mass[0].Equals("выиграл"))
                 {
                     form.Invoke(new UpdateForm<string>(form.ShowWinner), $"Поздравляем {mass[1]}!");
+                    if (mass[1].Equals(thisPlayer.Name))
+                    {
+                        Alive = false;
+                    }
+                    
                 }
             }
             catch(Exception ex)
